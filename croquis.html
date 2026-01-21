@@ -42,7 +42,7 @@
       --gateW: 18px;
       --gateH: 80px;
 
-      /* Mesas (desktop) */
+      /* Mesas */
       --sqW: clamp(32px, 9.5vw, 54px);
       --sqH: clamp(22px, 6.0vw, 38px);
       --rdD: clamp(16px, 5.2vw, 34px);
@@ -52,10 +52,6 @@
 
       --salonW: min(96vw, 920px);
       --salonH: min(86vh, 980px);
-
-      /* Móvil: alturas para apilar abajo */
-      --stairsH: 44px;
-      --stackGap: 10px;
     }
 
     body{
@@ -249,7 +245,7 @@
       box-sizing: border-box;
       z-index: 4;
 
-      overflow: hidden; /* nada se sale */
+      overflow: hidden;
       border-radius: 14px;
       background: rgba(255,255,255,.65);
       border: 1px solid rgba(0,0,0,.08);
@@ -286,17 +282,15 @@
       grid-template-rows: repeat(5, var(--sqH));
       column-gap: var(--gapSq);
       row-gap: var(--gapSq);
-
       justify-content: center;
       align-content: center;
-
       padding: 16px;
       box-sizing: border-box;
     }
 
     .mesas-cuadradas{ z-index: 2; }
 
-    /* FIX click */
+    /* FIX: la capa de redondas no tapa clics */
     .mesas-redondas{
       z-index: 3;
       pointer-events: none;
@@ -328,12 +322,10 @@
       border-radius: 14px;
     }
 
-    /* ✅ Mesas que deben verse CUADRADAS (sin mover posición) */
+    /* ✅ Mesas específicas que quieres “cuadradas” (sin moverlas) */
     .mesa.square.is-square{
-      width: var(--sqH);         /* igual que el alto => cuadrado */
+      width: var(--sqH);
       height: var(--sqH);
-      justify-self: center;      /* se centra dentro de su celda */
-      border-radius: 12px;
     }
 
     .mesa.round{
@@ -361,121 +353,67 @@
       margin-top: 14px;
     }
 
+    /* =========================================================
+       ✅ MODO CELULAR: MISMO CROQUIS, SOLO MÁS CHICO (sin reacomodar)
+       ========================================================= */
     @media (max-width: 520px){
-      .container{ margin: 16px auto; padding: 14px; }
-      h1{ font-size: 24px; }
+      .container{ margin: 14px auto; padding: 12px; }
+      h1{ font-size: 26px; }
       .hint{ font-size: 12px; }
-      :root{ --grid: 30px; }
+
+      :root{
+        --grid: 28px;
+        --margen: 8px;
+
+        /* Reducir bloques SIN cambiar posiciones */
+        --sideW: 140px;
+        --sideH: 220px;
+
+        --officeW: 210px;
+        --officeH: 88px;
+
+        --stageH: 78px;
+        --stairsW: 28px;
+        --stairsGap: 6px;
+
+        --gateW: 16px;
+        --gateH: 70px;
+
+        /* Mesas más chicas para que se vean completas */
+        --sqW: 44px;
+        --sqH: 34px;
+        --rdD: 28px;
+        --gapSq: 8px;
+
+        --tablesH: 250px;
+
+        /* El croquis se escala completo según el ancho (no se “rompe” en filas) */
+        --salonW: 96vw;
+      }
+
+      .salon{
+        width: var(--salonW);
+        height: auto;
+        aspect-ratio: 920 / 980; /* mantiene la “hoja” y se ve completo */
+      }
+
+      /* Ajustes leves de tipografías dentro del croquis */
+      .side .row{ font-size: 12px; }
+      .office{ font-size: 14px; }
+      .zona-musicos{ font-size: 16px; }
+      .mesa{ font-size: 10px; }
+      .zona-title{ font-size: 11px; }
     }
 
-    /* =========================================================
-       ✅ MODO CELULAR: apilar para que se vea COMPLETA la zona mesas
-       (en computadora se queda como está)
-       ========================================================= */
-    @media (max-width: 680px){
-      /* Solo en móvil hacemos las mesas un poco más pequeñas */
+    @media (max-width: 380px){
       :root{
-        --salonH: min(92vh, 980px);
-
-        --sqW: 44px;
+        --sideW: 128px;
+        --officeW: 198px;
+        --sqW: 40px;
         --sqH: 32px;
         --rdD: 26px;
-        --gapSq: 10px;
-
-        --sideH: 240px;
-        --tablesH: 320px;
-
-        --stairsH: 44px;
-        --stackGap: 10px;
-      }
-
-      /* SIDE ocupa el ancho (sin hacerlo más chico, solo reubicación) */
-      .side{
-        left: var(--margen);
-        right: var(--margen);
-        width: auto;
-        top: 70px;
-        height: var(--sideH);
-      }
-
-      /* Portón se vuelve horizontal abajo del bloque de baños */
-      .gate{
-        left: var(--margen);
-        top: calc(70px + var(--sideH) + var(--stackGap));
-        width: 110px;
-        height: 22px;
-        border-left: 2px solid rgba(0,0,0,.25);
-        border-radius: 10px;
-      }
-      .gate span{
-        transform: none;
-        font-size: 10px;
-      }
-
-      /* Abajo: Oficinas, Entrada, Músicos apilados */
-      .zona-musicos{
-        left: var(--margen);
-        right: var(--margen);
-        height: var(--stageH);
-        bottom: var(--margen);
-      }
-
-      .stairs{
-        left: var(--margen);
-        right: var(--margen);
-        width: auto;
-        height: var(--stairsH);
-        bottom: calc(var(--margen) + var(--stageH) + var(--stackGap));
-        background:
-          repeating-linear-gradient(
-            to right,
-            rgba(0,0,0,.10) 0px,
-            rgba(0,0,0,.10) 8px,
-            rgba(255,255,255,.40) 8px,
-            rgba(255,255,255,.40) 16px
-          );
-      }
-      .stairs b{
-        transform: none;
-        font-size: 11px;
-      }
-
-      .office{
-        left: var(--margen);
-        right: var(--margen);
-        width: auto;
-        bottom: calc(var(--margen) + var(--stageH) + var(--stackGap) + var(--stairsH) + var(--stackGap));
-      }
-
-      /* ✅ ZONA MESAS ocupa TODO el ancho para que se vea completa */
-      .zona-cuadradas{
-        left: var(--margen);
-        right: var(--margen);
-
-        /* se coloca debajo del portón */
-        top: calc(70px + var(--sideH) + var(--stackGap) + 32px);
-
-        /* y arriba de oficinas */
-        bottom: calc(
-          var(--margen)
-          + var(--stageH)
-          + var(--stackGap)
-          + var(--stairsH)
-          + var(--stackGap)
-          + var(--officeH)
-          + var(--stackGap)
-        );
-
-        height: auto; /* ahora se define por top/bottom */
-      }
-
-      .zona-redondas{ padding-top: 42px; }
-      .zona-title{ top: 10px; }
-
-      /* Las “cuadradas especiales” se adaptan */
-      .mesa.square.is-square{
-        width: var(--sqH);
-        height: var(--sqH);
+        --gapSq: 7px;
+        --tablesH: 240px;
       }
     }
   </style>
@@ -543,11 +481,11 @@
       {r:3, c:5}, {r:4, c:5}, {r:5, c:5},
     ];
 
-    /* ====== LINK especial de regresar ====== */
+    /* Link especial de regresar */
     const BACK_LINK = "Index.html";
     document.getElementById("backLink").href = BACK_LINK;
 
-    /* ====== LINKS por mesa ====== */
+    /* Links por mesa */
     const LINKS = {
       C1:  "Mesa1.html",
       C2:  "Mesa2.html",
@@ -580,8 +518,8 @@
       return LINKS[id] || "#";
     }
 
-    /* ✅ Estas deben verse CUADRADAS: C2, C5, C7, C9, C11, C13 */
-    const CUADRADAS_VISUAL = new Set(["C2","C5","C7","C9","C11","C13"]);
+    /* ✅ Estas rectangulares deben verse cuadradas (SIN moverlas) */
+    const SQUARE_LOOK = new Set(["C2","C5","C7","C9","C11","C13"]);
 
     function createMesa(id, isRound, gridPos){
       const a = document.createElement("a");
@@ -589,13 +527,12 @@
       a.href = mesaLink(id);
       a.textContent = id;
 
-      a.style.gridRow = gridPos.r;
-      a.style.gridColumn = gridPos.c;
-
-      // ✅ Solo cambia la forma (no la posición) para las que pediste
-      if (!isRound && CUADRADAS_VISUAL.has(id)) {
+      if (!isRound && SQUARE_LOOK.has(id)) {
         a.classList.add("is-square");
       }
+
+      a.style.gridRow = gridPos.r;
+      a.style.gridColumn = gridPos.c;
 
       return a;
     }
