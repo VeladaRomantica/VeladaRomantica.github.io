@@ -24,7 +24,7 @@
       --grid: 34px;
       --border: #1f2937;
 
-      /* Layout (mobile-first) */
+      /* Layout (desktop / base) */
       --margen: 10px;
 
       --sideW: clamp(165px, 38vw, 210px);
@@ -42,7 +42,7 @@
       --gateW: 18px;
       --gateH: 80px;
 
-      /* Mesas */
+      /* Mesas (desktop) */
       --sqW: clamp(32px, 9.5vw, 54px);
       --sqH: clamp(22px, 6.0vw, 38px);
       --rdD: clamp(16px, 5.2vw, 34px);
@@ -53,8 +53,9 @@
       --salonW: min(96vw, 920px);
       --salonH: min(86vh, 980px);
 
-      /* ✅ NUEVO: tamaño para mesas cuadradas (sin moverlas) */
-      --sqS: min(var(--sqW), var(--sqH));
+      /* Móvil: alturas para apilar abajo */
+      --stairsH: 44px;
+      --stackGap: 10px;
     }
 
     body{
@@ -295,12 +296,11 @@
 
     .mesas-cuadradas{ z-index: 2; }
 
-    /* ✅ FIX: la capa de redondas ya no tapa los clics de las rectangulares */
+    /* FIX click */
     .mesas-redondas{
       z-index: 3;
-      pointer-events: none; /* permite click a lo de abajo */
+      pointer-events: none;
     }
-    /* ✅ y solo las mesas redondas sí reciben click */
     .mesas-redondas .mesa.round{
       pointer-events: auto;
     }
@@ -328,13 +328,12 @@
       border-radius: 14px;
     }
 
-    /* ✅ NUEVO: SOLO estas mesas se verán CUADRADAS (sin mover su lugar) */
+    /* ✅ Mesas que deben verse CUADRADAS (sin mover posición) */
     .mesa.square.is-square{
-      width: var(--sqS);
-      height: var(--sqS);
+      width: var(--sqH);         /* igual que el alto => cuadrado */
+      height: var(--sqH);
+      justify-self: center;      /* se centra dentro de su celda */
       border-radius: 12px;
-      justify-self: center;
-      align-self: center;
     }
 
     .mesa.round{
@@ -367,6 +366,117 @@
       h1{ font-size: 24px; }
       .hint{ font-size: 12px; }
       :root{ --grid: 30px; }
+    }
+
+    /* =========================================================
+       ✅ MODO CELULAR: apilar para que se vea COMPLETA la zona mesas
+       (en computadora se queda como está)
+       ========================================================= */
+    @media (max-width: 680px){
+      /* Solo en móvil hacemos las mesas un poco más pequeñas */
+      :root{
+        --salonH: min(92vh, 980px);
+
+        --sqW: 44px;
+        --sqH: 32px;
+        --rdD: 26px;
+        --gapSq: 10px;
+
+        --sideH: 240px;
+        --tablesH: 320px;
+
+        --stairsH: 44px;
+        --stackGap: 10px;
+      }
+
+      /* SIDE ocupa el ancho (sin hacerlo más chico, solo reubicación) */
+      .side{
+        left: var(--margen);
+        right: var(--margen);
+        width: auto;
+        top: 70px;
+        height: var(--sideH);
+      }
+
+      /* Portón se vuelve horizontal abajo del bloque de baños */
+      .gate{
+        left: var(--margen);
+        top: calc(70px + var(--sideH) + var(--stackGap));
+        width: 110px;
+        height: 22px;
+        border-left: 2px solid rgba(0,0,0,.25);
+        border-radius: 10px;
+      }
+      .gate span{
+        transform: none;
+        font-size: 10px;
+      }
+
+      /* Abajo: Oficinas, Entrada, Músicos apilados */
+      .zona-musicos{
+        left: var(--margen);
+        right: var(--margen);
+        height: var(--stageH);
+        bottom: var(--margen);
+      }
+
+      .stairs{
+        left: var(--margen);
+        right: var(--margen);
+        width: auto;
+        height: var(--stairsH);
+        bottom: calc(var(--margen) + var(--stageH) + var(--stackGap));
+        background:
+          repeating-linear-gradient(
+            to right,
+            rgba(0,0,0,.10) 0px,
+            rgba(0,0,0,.10) 8px,
+            rgba(255,255,255,.40) 8px,
+            rgba(255,255,255,.40) 16px
+          );
+      }
+      .stairs b{
+        transform: none;
+        font-size: 11px;
+      }
+
+      .office{
+        left: var(--margen);
+        right: var(--margen);
+        width: auto;
+        bottom: calc(var(--margen) + var(--stageH) + var(--stackGap) + var(--stairsH) + var(--stackGap));
+      }
+
+      /* ✅ ZONA MESAS ocupa TODO el ancho para que se vea completa */
+      .zona-cuadradas{
+        left: var(--margen);
+        right: var(--margen);
+
+        /* se coloca debajo del portón */
+        top: calc(70px + var(--sideH) + var(--stackGap) + 32px);
+
+        /* y arriba de oficinas */
+        bottom: calc(
+          var(--margen)
+          + var(--stageH)
+          + var(--stackGap)
+          + var(--stairsH)
+          + var(--stackGap)
+          + var(--officeH)
+          + var(--stackGap)
+        );
+
+        height: auto; /* ahora se define por top/bottom */
+      }
+
+      .zona-redondas{ padding-top: 42px; }
+      .zona-title{ top: 10px; }
+
+      /* Las “cuadradas especiales” se adaptan */
+      .mesa.square.is-square{
+        width: var(--sqH);
+        height: var(--sqH);
+      }
     }
   </style>
 </head>
@@ -408,7 +518,7 @@
       </div>
     </div>
 
-    <!-- ✅ Link especial para regresar -->
+    <!-- Link especial para regresar -->
     <a id="backLink" href="#">
       <button class="btn-back">Regresar</button>
     </a>
@@ -433,11 +543,11 @@
       {r:3, c:5}, {r:4, c:5}, {r:5, c:5},
     ];
 
-    /* ====== AQUÍ PONES TU LINK ESPECIAL DE REGRESAR ====== */
+    /* ====== LINK especial de regresar ====== */
     const BACK_LINK = "Index.html";
     document.getElementById("backLink").href = BACK_LINK;
 
-    /* ====== AQUÍ PONES LOS LINKS DIFERENTES POR MESA ====== */
+    /* ====== LINKS por mesa ====== */
     const LINKS = {
       C1:  "Mesa1.html",
       C2:  "Mesa2.html",
@@ -470,8 +580,8 @@
       return LINKS[id] || "#";
     }
 
-    /* ✅ NUEVO: estas mesas deben verse cuadradas (NO se mueven) */
-    const SQUARE_VISUAL = new Set(["C2","C5","C7","C9","C11","C13"]);
+    /* ✅ Estas deben verse CUADRADAS: C2, C5, C7, C9, C11, C13 */
+    const CUADRADAS_VISUAL = new Set(["C2","C5","C7","C9","C11","C13"]);
 
     function createMesa(id, isRound, gridPos){
       const a = document.createElement("a");
@@ -482,8 +592,8 @@
       a.style.gridRow = gridPos.r;
       a.style.gridColumn = gridPos.c;
 
-      /* ✅ SOLO CAMBIO VISUAL: se vuelven cuadradas */
-      if (!isRound && SQUARE_VISUAL.has(id)){
+      // ✅ Solo cambia la forma (no la posición) para las que pediste
+      if (!isRound && CUADRADAS_VISUAL.has(id)) {
         a.classList.add("is-square");
       }
 
