@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Croquis del salón</title>
+
+  <style>
+    /* ====== ESTILO “Velada Romántica” (misma vibra) ====== */
+    :root{
+      /* Paleta */
+      --bg: #fff5f5;
+      --card: #ffffff;
+      --shadow: 0 0 15px rgba(0,0,0,0.2);
+      --title: #b22222;
+      --text: #111827;
+      --muted: #6b7280;
+
+      /* Botón */
+      --btn: #ffcc00;
+      --btnText: #333;
+
+      /* Croquis */
+      --grid: 32px;
+      --border: #1f2937;
+
+      /* Layout mobile-first */
+      --margen: 10px;
+
+      --sideW: clamp(165px, 38vw, 210px);
+      --sideH: clamp(250px, 36vh, 300px);
+
+      --officeW: clamp(250px, 56vw, 420px);
+      --officeH: clamp(95px, 15vh, 120px);
+
+      --stageH: clamp(90px, 14vh, 105px);
+      --gapStage: 10px;
+
+      --stairsW: clamp(26px, 5.5vw, 46px);
+      --stairsGap: 6px;
+
+      --gateW: 18px;
+      --gateH: 80px;
+
+      /* Mesas */
+      --sqW: clamp(56px, 10.5vw, 72px);
+      --sqH: clamp(34px, 6.5vw, 42px);
+      --rdD: clamp(28px, 5.8vw, 40px);
+      --gapSq: clamp(5px, 1.2vw, 7px);
+
+      --salonW: min(96vw, 920px);
+      --salonH: min(86vh, 980px);
+    }
+
+    body{
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      text-align: center;
+    }
+
+    .container{
+      max-width: 980px;
+      margin: 28px auto;
+      padding: 22px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border-radius: 10px;
+    }
+
+    h1{
+      margin: 0 0 6px 0;
+      color: var(--title);
+      font-size: 30px;
+      line-height: 1.15;
+    }
+
+    .hint{
+      margin: 0 0 16px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend{
+      margin: 14px 0 10px;
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: #333;
+    }
+    .legend span{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legend .box{
+      width: 18px;
+      height: 18px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      display: inline-block;
+      background: #fff;
+    }
+    .legend .box.occupied{ background:#333; }
+    .legend .box.selected{ background:#00ced1; border-color:#00ced1; }
+
+    /* ====== CROQUIS ====== */
+    .salon{
+      width: var(--salonW);
+      height: var(--salonH);
+      margin: 0 auto;
+      background:
+        linear-gradient(to right, rgba(0,0,0,.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,.06) 1px, transparent 1px),
+        #ffffff;
+      background-size: var(--grid) var(--grid);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+
+    .label{
+      position:absolute; top:10px; left:12px;
+      font-weight:800; font-size:14px;
+      background:#ffffffcc; padding:6px 10px;
+      border:1px solid #e5e7eb; border-radius:999px;
+      backdrop-filter: blur(4px);
+      z-index: 10;
+    }
+
+    .side{
+      position:absolute;
+      left: var(--margen);
+      top: 80px;
+      width: var(--sideW);
+      height: var(--sideH);
+      border: 2px solid rgba(0,0,0,.25);
+      border-radius: 12px;
+      background: #f8fafc;
+      overflow:hidden;
+      z-index: 2;
+    }
+    .side .row{
+      height: 25%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:800; color:#374151;
+      border-bottom: 1px dashed rgba(0,0,0,.20);
+      text-align: center;
+      padding: 0 8px;
+      box-sizing: border-box;
+    }
+    .side .row:last-child{ border-bottom: none; }
+
+    .office{
+      position:absolute;
+      left: var(--margen);
+      bottom: var(--margen);
+      width: var(--officeW);
+      height: var(--officeH);
+      border: 2px solid rgba(0,0,0,.25);
+      border-radius: 12px;
+      background: #f8fafc;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900; color:#374151;
+      z-index: 1;
+    }
+
+    .gate{
+      position:absolute;
+      left: calc(var(--margen) - 2px);
+      top: calc(80px + var(--sideH) + 16px);
+      width: var(--gateW);
+      height: var(--gateH);
+      background: #ffffffcc;
+      border: 2px solid rgba(0,0,0,.25);
+      border-left: 0;
+      border-radius: 0 10px 10px 0;
+      z-index: 3;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .gate span{
+      font-size: 10px;
+      font-weight: 900;
+      color:#374151;
+      transform: rotate(-90deg);
+      letter-spacing: .5px;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .stairs{
+      position:absolute;
+      left: calc(var(--margen) + var(--officeW) + 4px);
+      bottom: var(--margen);
+      width: var(--stairsW);
+      height: var(--stageH);
+      border: 2px solid rgba(0,0,0,.22);
+      border-radius: 10px;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(0,0,0,.10) 0px,
+          rgba(0,0,0,.10) 6px,
+          rgba(255,255,255,.35) 6px,
+          rgba(255,255,255,.35) 12px
+        );
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index: 2;
+    }
+    .stairs b{
+      font-size: 10px;
+      font-weight: 900;
+      color:#374151;
+      transform: rotate(-90deg);
+      user-select:none;
+      white-space: nowrap;
+    }
+
+    .zona-musicos{
+      position:absolute;
+      left: calc(var(--margen) + var(--officeW) + 4px + var(--stairsW) + var(--stairsGap));
+      right: var(--margen);
+      bottom: var(--margen);
+      height: var(--stageH);
+      border: 3px solid rgba(26,130,66,.45);
+      border-radius: 12px;
+      background: rgba(255,255,255,.35);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      color:#000;
+      z-index: 2;
+    }
+
+    .zona-cuadradas{
+      position:absolute;
+      left: calc(var(--margen) + var(--officeW) + 4px + var(--stairsW) + var(--stairsGap));
+      right: var(--margen);
+      bottom: calc(var(--margen) + var(--stageH) + var(--gapStage));
+      height: clamp(250px, 34vh, 330px);
+      box-sizing: border-box;
+      z-index: 4;
+    }
+
+    .zona-title{
+      position:absolute;
+      top: 0; left: 10px;
+      font-size: 12px;
+      font-weight: 900;
+      color:#111827;
+      background:#ffffffcc;
+      border:1px solid #e5e7eb;
+      padding:4px 8px;
+      border-radius:999px;
+      z-index: 6;
+    }
+
+    .zona-redondas{
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding-top: 28px;
+      box-sizing: border-box;
+    }
+
+    .mesas-cuadradas,
+    .mesas-redondas{
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(6, var(--sqW));
+      grid-template-rows: repeat(5, var(--sqH));
+      column-gap: var(--gapSq);
+      row-gap: var(--gapSq);
+      justify-content: center;
+      align-content: center;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    .mesas-cuadradas{ z-index: 2; }
+    .mesas-redondas{ z-index: 3; }
+
+    /* ====== Mesas con estilo “asientos” ====== */
+    .mesa{
+      border: 2px solid #ccc;               /* como en tu página */
+      background: #fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      color:#333;
+      user-select:none;
+      cursor: pointer;
+      transition: background-color .25s ease, transform .12s ease, box-shadow .12s ease;
+      box-shadow: 0 6px 14px rgba(0,0,0,.10);
+      font-size: 12px;
+      position: relative;
+    }
+
+    .mesa.square{
+      width: var(--sqW);
+      height: var(--sqH);
+      border-radius: 14px;
+    }
+
+    .mesa.round{
+      width: var(--rdD);
+      height: var(--rdD);
+      border-radius: 50%;
+      font-size: 11px;
+      justify-self: center;
+      align-self: center;
+    }
+
+    .mesa.available{ background-color: #fff; }
+    .mesa.available:hover{ background-color: #87CEFA; }
+
+    .mesa.selected{
+      background-color: #00ced1;
+      border-color: #00ced1;
+      color: #033;
+    }
+
+    .mesa.occupied{
+      background-color: #333;
+      color: #fff;
+      cursor: not-allowed;
+      border-color: #333;
+      box-shadow: none;
+    }
+
+    /* Tooltip (igual idea que tu página) */
+    .tooltip{
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      top: -34px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .mesa:hover .tooltip{ display: block; }
+
+    /* Botón “Regresar” (mismo estilo) */
+    .btn-back{
+      background: var(--btn);
+      padding: 12px 22px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      color: var(--btnText);
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    /* Responsive extra para móvil */
+    @media (max-width: 480px){
+      .container{ margin: 18px auto; padding: 16px; }
+      h1{ font-size: 24px; }
+      .btn-back{ font-size: 14px; padding: 10px 18px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Selecciona tus mesas</h1>
+    <p class="hint">Toca una mesa para seleccionarla. Doble clic (o doble toque) para modo admin.</p>
+
+    <div class="salon">
+      <div class="label">SALÓN</div>
+
+      <div class="side">
+        <div class="row">COCINA</div>
+        <div class="row">BARRA</div>
+        <div class="row">BAÑOS HOMBRES</div>
+        <div class="row">BAÑOS MUJERES</div>
+      </div>
+
+      <div class="gate" aria-label="Portón">
+        <span>PORTÓN</span>
+      </div>
+
+      <div class="office">OFICINAS</div>
+
+      <div class="stairs" aria-label="Escalera principal">
+        <b>ESCALERA</b>
+      </div>
+
+      <div class="zona-musicos">MÚSICOS</div>
+
+      <div class="zona-cuadradas" id="zonaCuadradas">
+        <div class="zona-title">MESAS</div>
+
+        <div class="zona-redondas" id="zonaRedondas">
+          <div class="mesas-redondas" id="mesasRedondas"></div>
+          <div class="mesas-cuadradas" id="mesasCuadradas"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><div class="box available"></div> Disponible</span>
+      <span><div class="box occupied"></div> Ocupado</span>
+      <span><div class="box selected"></div> Seleccionado</span>
+    </div>
+
+    <a href="Mesas.html">
+      <button class="btn-back">Regresar</button>
+    </a>
+  </div>
+
+  <script>
+    /* ====== Lógica estilo tu página (localStorage + admin) ====== */
+    let isAdmin = false;
+
+    // ID único de esta vista (si quieres cambiarlo por evento)
+    const pageId = "croquis_salon_v1";
+
+    const contCuadradas = document.getElementById("mesasCuadradas");
+    const contRedondas  = document.getElementById("mesasRedondas");
+
+    const saved = JSON.parse(localStorage.getItem(`tables_${pageId}`)) || {};
+
+    const NUM_CUADRADAS = 14;
+    const NUM_REDONDAS  = 10;
+
+    const squarePos = [
+      {r:1, c:1}, {r:1, c:2}, {r:1, c:3}, {r:1, c:4}, {r:1, c:5}, {r:1, c:6},
+      {r:2, c:1}, {r:3, c:1}, {r:4, c:1}, {r:5, c:1},
+      {r:2, c:6}, {r:3, c:6}, {r:4, c:6}, {r:5, c:6},
+    ];
+
+    const roundPos = [
+      {r:2, c:2}, {r:2, c:3}, {r:2, c:4}, {r:2, c:5},
+      {r:3, c:2}, {r:4, c:2}, {r:5, c:2},
+      {r:3, c:5}, {r:4, c:5}, {r:5, c:5},
+    ];
+
+    function makeMesa({ id, label, isRound, gridPos }) {
+      const b = document.createElement("div");
+      b.className = "mesa " + (isRound ? "round" : "square");
+      b.style.gridRow = gridPos.r;
+      b.style.gridColumn = gridPos.c;
+
+      // estado guardado
+      const info = saved[id] ? saved[id] : "Disponible";
+      b.dataset.info = info;
+
+      // tooltip
+      const tip = document.createElement("div");
+      tip.className = "tooltip";
+      tip.textContent = info;
+      b.appendChild(tip);
+
+      // texto visible
+      const txt = document.createElement("span");
+      txt.textContent = label;
+      b.appendChild(txt);
+
+      // clases de estado
+      if (saved[id]) {
+        b.classList.add("occupied");
+      } else {
+        b.classList.add("available");
+      }
+
+      // click: seleccionar (solo si disponible)
+      b.addEventListener("click", () => {
+        if (b.classList.contains("occupied")) {
+          alert(b.dataset.info);
+          return;
+        }
+        b.classList.toggle("selected");
+      });
+
+      // doble clic: admin toggle / asignar comprador
+      b.addEventListener("dblclick", () => {
+        if (!isAdmin) {
+          const password = prompt("Introduce la clave de administrador");
+          if (password === "admin123") {
+            isAdmin = true;
+            alert("Modo administrador activado");
+          } else {
+            alert("Clave incorrecta");
+          }
+          return;
+        }
+
+        // admin: marcar como comprado
+        const newName = prompt("Introduce el nombre del comprador:", b.dataset.info);
+        if (!newName) return;
+
+        const val = `Comprado por: ${newName}`;
+        b.dataset.info = val;
+        tip.textContent = val;
+
+        b.classList.remove("available", "selected");
+        b.classList.add("occupied");
+
+        saved[id] = val;
+        localStorage.setItem(`tables_${pageId}`, JSON.stringify(saved));
+      });
+
+      return b;
+    }
+
+    function render(){
+      contCuadradas.innerHTML = "";
+      contRedondas.innerHTML  = "";
+
+      for (let i = 0; i < NUM_CUADRADAS; i++){
+        const id = "C" + (i+1);
+        contCuadradas.appendChild(
+          makeMesa({ id, label: id, isRound: false, gridPos: squarePos[i] })
+        );
+      }
+
+      for (let i = 0; i < NUM_REDONDAS; i++){
+        const id = "R" + (i+1);
+        contRedondas.appendChild(
+          makeMesa({ id, label: id, isRound: true, gridPos: roundPos[i] })
+        );
+      }
+    }
+
+    window.addEventListener("load", render);
+  </script>
+</body>
+</html>

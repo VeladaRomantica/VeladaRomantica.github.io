@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Croquis del salón</title>
+
+  <style>
+    /* ====== Estilo base (igual vibra que tu web) ====== */
+    :root{
+      /* Paleta / UI */
+      --bg: #fff5f5;
+      --card: #ffffff;
+      --shadow: 0 0 15px rgba(0,0,0,0.2);
+      --title: #b22222;
+      --text: #111827;
+      --muted: #6b7280;
+
+      /* Botón */
+      --btn: #ffcc00;
+      --btnText: #333;
+
+      /* Croquis */
+      --grid: 34px;
+      --border: #1f2937;
+
+      /* Layout (mobile-first) */
+      --margen: 10px;
+
+      --sideW: clamp(165px, 38vw, 210px);
+      --sideH: clamp(250px, 36vh, 300px);
+
+      --officeW: clamp(250px, 56vw, 420px);
+      --officeH: clamp(95px, 15vh, 120px);
+
+      --stageH: clamp(90px, 14vh, 105px);
+      --gapStage: 12px;
+
+      --stairsW: clamp(26px, 5.5vw, 46px);
+      --stairsGap: 8px;
+
+      --gateW: 18px;
+      --gateH: 80px;
+
+      /* Mesas */
+      --sqW: clamp(32px, 9.5vw, 54px);
+      --sqH: clamp(22px, 6.0vw, 38px);
+      --rdD: clamp(16px, 5.2vw, 34px);
+      --gapSq: clamp(7px, 1.6vw, 12px);
+
+      --tablesH: clamp(270px, 40vh, 360px);
+
+      --salonW: min(96vw, 920px);
+      --salonH: min(86vh, 980px);
+
+      /* ✅ NUEVO: tamaño para mesas cuadradas (sin moverlas) */
+      --sqS: min(var(--sqW), var(--sqH));
+    }
+
+    body{
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      text-align: center;
+    }
+
+    .container{
+      max-width: 980px;
+      margin: 22px auto;
+      padding: 18px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border-radius: 12px;
+    }
+
+    h1{
+      margin: 0 0 6px 0;
+      color: var(--title);
+      font-size: 30px;
+      line-height: 1.15;
+    }
+
+    .hint{
+      margin: 0 0 14px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* ====== CROQUIS ====== */
+    .salon{
+      width: var(--salonW);
+      height: var(--salonH);
+      margin: 0 auto;
+
+      background:
+        radial-gradient(circle at 1px 1px, rgba(0,0,0,.06) 1px, transparent 1px),
+        #ffffff;
+      background-size: calc(var(--grid)/2) calc(var(--grid)/2);
+
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+
+    .salon::after{
+      content:"";
+      position:absolute;
+      inset: 10px;
+      border: 1px solid rgba(31,41,55,.20);
+      border-radius: 12px;
+      pointer-events:none;
+    }
+
+    .label{
+      position:absolute; top:12px; left:14px;
+      font-weight:900; font-size:14px;
+      background:#ffffffcc; padding:6px 10px;
+      border:1px solid #e5e7eb; border-radius:999px;
+      backdrop-filter: blur(4px);
+      z-index: 10;
+    }
+
+    .side{
+      position:absolute;
+      left: var(--margen);
+      top: 80px;
+      width: var(--sideW);
+      height: var(--sideH);
+      border: 2px solid rgba(0,0,0,.25);
+      border-radius: 14px;
+      background: #f8fafc;
+      overflow:hidden;
+      z-index: 2;
+      box-shadow: 0 10px 18px rgba(0,0,0,.06);
+    }
+    .side .row{
+      height: 25%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900; color:#374151;
+      border-bottom: 1px dashed rgba(0,0,0,.20);
+      text-align: center;
+      padding: 0 8px;
+      box-sizing: border-box;
+    }
+    .side .row:last-child{ border-bottom: none; }
+
+    .office{
+      position:absolute;
+      left: var(--margen);
+      bottom: var(--margen);
+      width: var(--officeW);
+      height: var(--officeH);
+      border: 2px solid rgba(0,0,0,.25);
+      border-radius: 14px;
+      background: #f8fafc;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900; color:#374151;
+      z-index: 1;
+      box-shadow: 0 10px 18px rgba(0,0,0,.06);
+    }
+
+    .gate{
+      position:absolute;
+      left: calc(var(--margen) - 2px);
+      top: calc(80px + var(--sideH) + 18px);
+      width: var(--gateW);
+      height: var(--gateH);
+      background: #ffffffcc;
+      border: 2px solid rgba(0,0,0,.25);
+      border-left: 0;
+      border-radius: 0 10px 10px 0;
+      z-index: 3;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 10px 18px rgba(0,0,0,.06);
+    }
+    .gate span{
+      font-size: 10px;
+      font-weight: 900;
+      color:#374151;
+      transform: rotate(-90deg);
+      letter-spacing: .5px;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .stairs{
+      position:absolute;
+      left: calc(var(--margen) + var(--officeW) + 4px);
+      bottom: var(--margen);
+      width: var(--stairsW);
+      height: var(--stageH);
+      border: 2px solid rgba(0,0,0,.22);
+      border-radius: 10px;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(0,0,0,.10) 0px,
+          rgba(0,0,0,.10) 6px,
+          rgba(255,255,255,.40) 6px,
+          rgba(255,255,255,.40) 12px
+        );
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index: 2;
+      box-shadow: 0 10px 18px rgba(0,0,0,.06);
+    }
+    .stairs b{
+      font-size: 10px;
+      font-weight: 900;
+      color:#374151;
+      transform: rotate(-90deg);
+      user-select:none;
+      white-space: nowrap;
+    }
+
+    .zona-musicos{
+      position:absolute;
+      left: calc(var(--margen) + var(--officeW) + 4px + var(--stairsW) + var(--stairsGap));
+      right: var(--margen);
+      bottom: var(--margen);
+      height: var(--stageH);
+      border: 3px solid rgba(26,130,66,.45);
+      border-radius: 14px;
+      background: rgba(46,230,166,.08);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      color:#000;
+      z-index: 2;
+      box-shadow: 0 10px 18px rgba(0,0,0,.06);
+    }
+
+    /* ====== BLOQUE DE MESAS ====== */
+    .zona-cuadradas{
+      position:absolute;
+      left: calc(var(--margen) + var(--officeW) + 4px + var(--stairsW) + var(--stairsGap));
+      right: var(--margen);
+      bottom: calc(var(--margen) + var(--stageH) + var(--gapStage));
+      height: var(--tablesH);
+      box-sizing: border-box;
+      z-index: 4;
+
+      overflow: hidden; /* nada se sale */
+      border-radius: 14px;
+      background: rgba(255,255,255,.65);
+      border: 1px solid rgba(0,0,0,.08);
+      backdrop-filter: blur(1px);
+    }
+
+    .zona-title{
+      position:absolute;
+      top: 8px; left: 10px;
+      font-size: 12px;
+      font-weight: 900;
+      color:#111827;
+      background:#ffffffcc;
+      border:1px solid #e5e7eb;
+      padding:4px 8px;
+      border-radius:999px;
+      z-index: 6;
+    }
+
+    .zona-redondas{
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding-top: 34px;
+      box-sizing: border-box;
+    }
+
+    .mesas-cuadradas,
+    .mesas-redondas{
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(6, var(--sqW));
+      grid-template-rows: repeat(5, var(--sqH));
+      column-gap: var(--gapSq);
+      row-gap: var(--gapSq);
+
+      justify-content: center;
+      align-content: center;
+
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .mesas-cuadradas{ z-index: 2; }
+
+    /* ✅ FIX: la capa de redondas ya no tapa los clics de las rectangulares */
+    .mesas-redondas{
+      z-index: 3;
+      pointer-events: none; /* permite click a lo de abajo */
+    }
+    /* ✅ y solo las mesas redondas sí reciben click */
+    .mesas-redondas .mesa.round{
+      pointer-events: auto;
+    }
+
+    .mesa{
+      border: 2px solid #ccc;
+      background: #fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      color:#333;
+      user-select:none;
+      cursor: pointer;
+      transition: background-color .25s ease, transform .12s ease, box-shadow .12s ease;
+      box-shadow: 0 6px 14px rgba(0,0,0,.10);
+      font-size: 11px;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mesa.square{
+      width: var(--sqW);
+      height: var(--sqH);
+      border-radius: 14px;
+    }
+
+    /* ✅ NUEVO: SOLO estas mesas se verán CUADRADAS (sin mover su lugar) */
+    .mesa.square.is-square{
+      width: var(--sqS);
+      height: var(--sqS);
+      border-radius: 12px;
+      justify-self: center;
+      align-self: center;
+    }
+
+    .mesa.round{
+      width: var(--rdD);
+      height: var(--rdD);
+      border-radius: 50%;
+      justify-self: center;
+      align-self: center;
+    }
+
+    .mesa:hover{
+      background-color: #87CEFA;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0,0,0,.12);
+    }
+
+    .btn-back{
+      background: var(--btn);
+      padding: 12px 22px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      color: var(--btnText);
+      cursor: pointer;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 520px){
+      .container{ margin: 16px auto; padding: 14px; }
+      h1{ font-size: 24px; }
+      .hint{ font-size: 12px; }
+      :root{ --grid: 30px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Selecciona tus mesas</h1>
+    <p class="hint">Toca una mesa para ir a su página.</p>
+
+    <div class="salon">
+      <div class="label">SALÓN</div>
+
+      <div class="side">
+        <div class="row">COCINA</div>
+        <div class="row">BARRA</div>
+        <div class="row">BAÑOS HOMBRES</div>
+        <div class="row">BAÑOS MUJERES</div>
+      </div>
+
+      <div class="gate" aria-label="Portón">
+        <span>PORTÓN</span>
+      </div>
+
+      <div class="office">OFICINAS</div>
+
+      <div class="stairs" aria-label="Escalera principal">
+        <b>Entrada</b>
+      </div>
+
+      <div class="zona-musicos">MÚSICOS</div>
+
+      <div class="zona-cuadradas" id="zonaCuadradas">
+        <div class="zona-title">MESAS</div>
+
+        <div class="zona-redondas">
+          <div class="mesas-redondas" id="mesasRedondas"></div>
+          <div class="mesas-cuadradas" id="mesasCuadradas"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Link especial para regresar -->
+    <a id="backLink" href="#">
+      <button class="btn-back">Regresar</button>
+    </a>
+  </div>
+
+  <script>
+    const contCuadradas = document.getElementById("mesasCuadradas");
+    const contRedondas  = document.getElementById("mesasRedondas");
+
+    const NUM_CUADRADAS = 14;
+    const NUM_REDONDAS  = 10;
+
+    const squarePos = [
+      {r:1, c:1}, {r:1, c:2}, {r:1, c:3}, {r:1, c:4}, {r:1, c:5}, {r:1, c:6},
+      {r:2, c:1}, {r:3, c:1}, {r:4, c:1}, {r:5, c:1},
+      {r:2, c:6}, {r:3, c:6}, {r:4, c:6}, {r:5, c:6},
+    ];
+
+    const roundPos = [
+      {r:2, c:2}, {r:2, c:3}, {r:2, c:4}, {r:2, c:5},
+      {r:3, c:2}, {r:4, c:2}, {r:5, c:2},
+      {r:3, c:5}, {r:4, c:5}, {r:5, c:5},
+    ];
+
+    /* ====== AQUÍ PONES TU LINK ESPECIAL DE REGRESAR ====== */
+    const BACK_LINK = "Index copy.html";
+    document.getElementById("backLink").href = BACK_LINK;
+
+    /* ====== AQUÍ PONES LOS LINKS DIFERENTES POR MESA ====== */
+    const LINKS = {
+      C1:  "Mesa1.html",
+      C2:  "Mesa2.html",
+      C3:  "Mesa3.html",
+      C4:  "Mesa4.html",
+      C5:  "Mesa5.html",
+      C6:  "Mesa6.html",
+      C7:  "Mesa7.html",
+      C8:  "Mesa8.html",
+      C9:  "Mesa9.html",
+      C10: "Mesa10.html",
+      C11: "Mesa11.html",
+      C12: "Mesa12.html",
+      C13: "mesa13.html",
+      C14: "mesa14.html",
+
+      R1:  "mesa15.html",
+      R2:  "mesa16.html",
+      R3:  "mesa17.html",
+      R4:  "mesa18.html",
+      R5:  "mesa19.html",
+      R6:  "mesa20.html",
+      R7:  "mesa21.html",
+      R8:  "mesa22.html",
+      R9:  "mesa23.html",
+      R10: "mesa24.html",
+    };
+
+    function mesaLink(id){
+      return LINKS[id] || "#";
+    }
+
+    /* ✅ NUEVO: estas mesas deben verse cuadradas (NO se mueven) */
+    const SQUARE_VISUAL = new Set(["C2","C5","C7","C9","C11","C13"]);
+
+    function createMesa(id, isRound, gridPos){
+      const a = document.createElement("a");
+      a.className = "mesa " + (isRound ? "round" : "square");
+      a.href = mesaLink(id);
+      a.textContent = id;
+
+      a.style.gridRow = gridPos.r;
+      a.style.gridColumn = gridPos.c;
+
+      /* ✅ SOLO CAMBIO VISUAL: se vuelven cuadradas */
+      if (!isRound && SQUARE_VISUAL.has(id)){
+        a.classList.add("is-square");
+      }
+
+      return a;
+    }
+
+    function render(){
+      contCuadradas.innerHTML = "";
+      contRedondas.innerHTML  = "";
+
+      for (let i = 1; i <= NUM_CUADRADAS; i++){
+        const id = "C" + i;
+        contCuadradas.appendChild(createMesa(id, false, squarePos[i-1]));
+      }
+
+      for (let i = 1; i <= NUM_REDONDAS; i++){
+        const id = "R" + i;
+        contRedondas.appendChild(createMesa(id, true, roundPos[i-1]));
+      }
+    }
+
+    window.addEventListener("load", render);
+  </script>
+</body>
+</html>

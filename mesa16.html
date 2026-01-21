@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Velada Romántica</title>
+
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fff5f5;
+      text-align: center;
+    }
+
+    .container{
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 22px;
+      background: #fff;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      border-radius: 12px;
+    }
+
+    h1{
+      color: #b22222;
+      margin: 0 0 10px 0;
+    }
+
+    :root{
+      --seat: 60px;     /* tamaño asiento */
+      --gapOut: 18px;   /* separación fuera de la línea de la mesa */
+    }
+
+    .table-area{
+      position: relative;
+      width: min(760px, 92vw);
+      height: min(520px, 74vw);
+      max-height: 620px;
+      margin: 18px auto 10px auto;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 10px 26px rgba(0,0,0,.08);
+      border: 1px solid rgba(0,0,0,.08);
+      overflow: hidden;
+    }
+
+    /* ✅ MESA CIRCULAR */
+    .mesa-circle{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(300px, 54vw);
+      height: min(300px, 54vw);
+      border: 6px solid rgba(0,0,0,.20);
+      border-radius: 50%;
+      background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #6b7280;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    #seating-chart{
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+    }
+
+    .seat{
+      width: var(--seat);
+      height: var(--seat);
+      border: 3px solid #ccc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform .12s ease, box-shadow .12s ease;
+      position: absolute;
+      background-color: #fff;
+      box-shadow: 0 8px 18px rgba(0,0,0,.10);
+      user-select: none;
+    }
+
+    .available{ background-color: #fff; }
+    .occupied{ background-color: #333; color: #fff; cursor: not-allowed; border-color: #444; }
+    .selected{ background-color: #00ced1; border-color: rgba(0,0,0,.25); }
+
+    .available:hover{
+      background-color: #87CEFA;
+      transform: translate(-50%, -50%) translateY(-1px);
+    }
+
+    .tooltip{
+      position: absolute;
+      background-color: rgba(0,0,0,0.82);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-size: 13px;
+      white-space: nowrap;
+      top: -38px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .legend{
+      margin-top: 16px;
+    }
+    .legend span{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 10px;
+      font-size: 14px;
+    }
+    .legend .box{
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      border: 1px solid #333;
+      border-radius: 4px;
+    }
+
+    .btn-back{
+      background: #ffcc00;
+      padding: 13px 26px;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+      color: #333;
+      cursor: pointer;
+      margin-top: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.10);
+    }
+
+    @media (max-width: 520px){
+      :root{
+        --seat: 52px;
+        --gapOut: 16px;
+      }
+      .table-area{
+        height: min(520px, 94vw);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Selecciona tus asientos</h1>
+
+    <div class="table-area" aria-label="Mesa y asientos">
+      <div class="mesa-circle" id="mesaCircle">MESA</div>
+      <div id="seating-chart"></div>
+    </div>
+
+    <div class="legend">
+      <span><div class="box available"></div> Disponible</span>
+      <span><div class="box occupied" style="background:#333;"></div> Ocupado</span>
+      <span><div class="box selected" style="background:#00ced1;"></div> Seleccionado</span>
+    </div>
+
+    <a href="croquis.html">
+      <button class="btn-back">Regresar</button>
+    </a>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeSHr1HjyaLBaY-H47y0LleeG99w8dRcc",
+      authDomain: "velada-255a6.firebaseapp.com",
+      projectId: "velada-255a6",
+      storageBucket: "velada-255a6.appspot.com",
+      messagingSenderId: "604033105183",
+      appId: "1:604033105183:web:1b80a81c207b25b3f9842a",
+      measurementId: "G-7GZMGGX0W3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const seatingChart = document.getElementById("seating-chart");
+    const mesaEl = document.getElementById("mesaCircle");
+
+    const pageId = "mesa16";
+    const seatsRef = doc(db, "asientos", pageId);
+
+    const TOTAL_SEATS = 10;
+
+    function numCss(varName){
+      const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    // ✅ Posiciona en círculo, SIEMPRE afuera de la línea de la mesa
+    function positionSeatsRadial(){
+      const seatEls = seatingChart.querySelectorAll(".seat");
+      if (!seatEls.length) return;
+
+      const areaRect = seatingChart.getBoundingClientRect();
+      const mesaRect = mesaEl.getBoundingClientRect();
+
+      const seatSize = seatEls[0].getBoundingClientRect().width || 60;
+      const gapOut = numCss("--gapOut") || 18;
+
+      // Centro de la mesa (relativo al área)
+      const cx = (mesaRect.left - areaRect.left) + (mesaRect.width / 2);
+      const cy = (mesaRect.top - areaRect.top) + (mesaRect.height / 2);
+
+      // Radio de la mesa
+      const mesaR = mesaRect.width / 2;
+
+      // ✅ Radio de asientos (garantiza que NO crucen la línea):
+      // mesaR + (seat/2) + gapOut
+      let seatRingR = mesaR + (seatSize / 2) + gapOut;
+
+      // Seguridad: que no se salga del contenedor (si se sale, reducimos un poco)
+      const safeR = Math.min(
+        cx - (seatSize / 2) - 6,
+        (areaRect.width - cx) - (seatSize / 2) - 6,
+        cy - (seatSize / 2) - 6,
+        (areaRect.height - cy) - (seatSize / 2) - 6
+      );
+      seatRingR = Math.min(seatRingR, safeR);
+
+      // Ángulos (0 = derecha). Para iniciar "arriba", usamos -90°.
+      // Distribución pareja: 10 alrededor.
+      for (let i = 0; i < seatEls.length; i++){
+        const angle = (-90 + (360 * i / seatEls.length)) * (Math.PI / 180);
+        const x = cx + seatRingR * Math.cos(angle);
+        const y = cy + seatRingR * Math.sin(angle);
+
+        seatEls[i].style.left = `${x}px`;
+        seatEls[i].style.top  = `${y}px`;
+        seatEls[i].style.transform = "translate(-50%, -50%)";
+      }
+    }
+
+    function renderSeats(savedSeats){
+      seatingChart.innerHTML = "";
+
+      for (let i = 1; i <= TOTAL_SEATS; i++){
+        const seat = document.createElement("div");
+        seat.classList.add("seat");
+        seat.textContent = i;
+
+        const tooltip = document.createElement("div");
+        tooltip.classList.add("tooltip");
+        seat.appendChild(tooltip);
+
+        if (savedSeats[`asiento${i}`]) {
+          seat.classList.add("occupied");
+          tooltip.textContent = savedSeats[`asiento${i}`];
+        } else {
+          seat.classList.add("available");
+          tooltip.textContent = "Disponible";
+        }
+
+        seat.addEventListener("click", function () {
+          document.querySelectorAll(".tooltip").forEach(t => t.style.display = "none");
+          tooltip.style.display = "block";
+          setTimeout(() => { tooltip.style.display = "none"; }, 3000);
+        });
+
+        seat.addEventListener("dblclick", async function () {
+          let password = prompt("Introduce la contraseña para modificar:");
+          if (password === "admin123") {
+            let newName = prompt("Introduce el nombre del comprador:");
+            if (newName) {
+              await setDoc(seatsRef, {
+                ...savedSeats,
+                [`asiento${i}`]: `Comprado por: ${newName}`
+              });
+            }
+          } else {
+            alert("Contraseña incorrecta.");
+          }
+        });
+
+        seatingChart.appendChild(seat);
+      }
+
+      requestAnimationFrame(positionSeatsRadial);
+    }
+
+    onSnapshot(seatsRef, (snapshot) => {
+      const savedSeats = snapshot.exists() ? snapshot.data() : {};
+      renderSeats(savedSeats);
+    });
+
+    window.addEventListener("resize", () => requestAnimationFrame(positionSeatsRadial));
+  </script>
+</body>
+</html>
