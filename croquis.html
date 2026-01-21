@@ -24,7 +24,7 @@
       --grid: 34px;
       --border: #1f2937;
 
-      /* Layout (desktop / base) */
+      /* Layout (mobile-first) */
       --margen: 10px;
 
       --sideW: clamp(165px, 38vw, 210px);
@@ -83,6 +83,13 @@
       margin: 0 0 14px 0;
       color: var(--muted);
       font-size: 13px;
+    }
+
+    /* ✅ WRAP para poder escalar SOLO en celular sin mover posiciones */
+    .salon-wrap{
+      width: 100%;
+      display: flex;
+      justify-content: center;
     }
 
     /* ====== CROQUIS ====== */
@@ -245,7 +252,7 @@
       box-sizing: border-box;
       z-index: 4;
 
-      overflow: hidden;
+      overflow: hidden; /* nada se sale */
       border-radius: 14px;
       background: rgba(255,255,255,.65);
       border: 1px solid rgba(0,0,0,.08);
@@ -282,19 +289,22 @@
       grid-template-rows: repeat(5, var(--sqH));
       column-gap: var(--gapSq);
       row-gap: var(--gapSq);
+
       justify-content: center;
       align-content: center;
+
       padding: 16px;
       box-sizing: border-box;
     }
 
     .mesas-cuadradas{ z-index: 2; }
 
-    /* FIX: la capa de redondas no tapa clics */
+    /* ✅ FIX: la capa de redondas ya no tapa los clics de las rectangulares */
     .mesas-redondas{
       z-index: 3;
-      pointer-events: none;
+      pointer-events: none; /* permite click a lo de abajo */
     }
+    /* ✅ y solo las mesas redondas sí reciben click */
     .mesas-redondas .mesa.round{
       pointer-events: auto;
     }
@@ -322,12 +332,6 @@
       border-radius: 14px;
     }
 
-    /* ✅ Mesas específicas que quieres “cuadradas” (sin moverlas) */
-    .mesa.square.is-square{
-      width: var(--sqH);
-      height: var(--sqH);
-    }
-
     .mesa.round{
       width: var(--rdD);
       height: var(--rdD);
@@ -353,67 +357,50 @@
       margin-top: 14px;
     }
 
-    /* =========================================================
-       ✅ MODO CELULAR: MISMO CROQUIS, SOLO MÁS CHICO (sin reacomodar)
-       ========================================================= */
     @media (max-width: 520px){
-      .container{ margin: 14px auto; padding: 12px; }
-      h1{ font-size: 26px; }
+      .container{ margin: 16px auto; padding: 14px; }
+      h1{ font-size: 24px; }
       .hint{ font-size: 12px; }
-
-      :root{
-        --grid: 28px;
-        --margen: 8px;
-
-        /* Reducir bloques SIN cambiar posiciones */
-        --sideW: 140px;
-        --sideH: 220px;
-
-        --officeW: 210px;
-        --officeH: 88px;
-
-        --stageH: 78px;
-        --stairsW: 28px;
-        --stairsGap: 6px;
-
-        --gateW: 16px;
-        --gateH: 70px;
-
-        /* Mesas más chicas para que se vean completas */
-        --sqW: 44px;
-        --sqH: 34px;
-        --rdD: 28px;
-        --gapSq: 8px;
-
-        --tablesH: 250px;
-
-        /* El croquis se escala completo según el ancho (no se “rompe” en filas) */
-        --salonW: 96vw;
-      }
-
-      .salon{
-        width: var(--salonW);
-        height: auto;
-        aspect-ratio: 920 / 980; /* mantiene la “hoja” y se ve completo */
-      }
-
-      /* Ajustes leves de tipografías dentro del croquis */
-      .side .row{ font-size: 12px; }
-      .office{ font-size: 14px; }
-      .zona-musicos{ font-size: 16px; }
-      .mesa{ font-size: 10px; }
-      .zona-title{ font-size: 11px; }
+      :root{ --grid: 30px; }
     }
 
-    @media (max-width: 380px){
+    /* =========================================================
+       ✅ AJUSTE FINO CELULAR: “hacer todo más pequeño” SIN reacomodar
+       (mantiene el croquis igual, pero entra completo y las mesas caben)
+       ========================================================= */
+    @media (max-width: 520px){
+      /* Escala general del croquis */
+      .salon{
+        transform: scale(.90);
+        transform-origin: top center;
+      }
+
+      /* Compensa el alto para que no se corte por el scale */
+      .salon-wrap{
+        height: calc(var(--salonH) * .90);
+      }
+
+      /* Mesas un poquito más pequeñas en móvil (solo tamaño, NO posiciones) */
       :root{
-        --sideW: 128px;
-        --officeW: 198px;
         --sqW: 40px;
-        --sqH: 32px;
-        --rdD: 26px;
+        --sqH: 30px;
+        --rdD: 25px;
         --gapSq: 7px;
         --tablesH: 240px;
+      }
+    }
+
+    /* iPhones pequeños: aún más compacto */
+    @media (max-width: 390px){
+      .salon{ transform: scale(.85); }
+      .salon-wrap{ height: calc(var(--salonH) * .85); }
+
+      :root{
+        --sqW: 38px;
+        --sqH: 28px;
+        --rdD: 24px;
+        --gapSq: 6px;
+        --tablesH: 230px;
       }
     }
   </style>
@@ -424,39 +411,42 @@
     <h1>Selecciona tus mesas</h1>
     <p class="hint">Toca una mesa para ir a su página.</p>
 
-    <div class="salon">
-      <div class="label">SALÓN</div>
+    <!-- ✅ wrap para poder escalar en celular sin mover posiciones -->
+    <div class="salon-wrap">
+      <div class="salon">
+        <div class="label">SALÓN</div>
 
-      <div class="side">
-        <div class="row">COCINA</div>
-        <div class="row">BARRA</div>
-        <div class="row">BAÑOS HOMBRES</div>
-        <div class="row">BAÑOS MUJERES</div>
-      </div>
+        <div class="side">
+          <div class="row">COCINA</div>
+          <div class="row">BARRA</div>
+          <div class="row">BAÑOS HOMBRES</div>
+          <div class="row">BAÑOS MUJERES</div>
+        </div>
 
-      <div class="gate" aria-label="Portón">
-        <span>PORTÓN</span>
-      </div>
+        <div class="gate" aria-label="Portón">
+          <span>PORTÓN</span>
+        </div>
 
-      <div class="office">OFICINAS</div>
+        <div class="office">OFICINAS</div>
 
-      <div class="stairs" aria-label="Escalera principal">
-        <b>Entrada</b>
-      </div>
+        <div class="stairs" aria-label="Escalera principal">
+          <b>Entrada</b>
+        </div>
 
-      <div class="zona-musicos">MÚSICOS</div>
+        <div class="zona-musicos">MÚSICOS</div>
 
-      <div class="zona-cuadradas" id="zonaCuadradas">
-        <div class="zona-title">MESAS</div>
+        <div class="zona-cuadradas" id="zonaCuadradas">
+          <div class="zona-title">MESAS</div>
 
-        <div class="zona-redondas">
-          <div class="mesas-redondas" id="mesasRedondas"></div>
-          <div class="mesas-cuadradas" id="mesasCuadradas"></div>
+          <div class="zona-redondas">
+            <div class="mesas-redondas" id="mesasRedondas"></div>
+            <div class="mesas-cuadradas" id="mesasCuadradas"></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Link especial para regresar -->
+    <!-- ✅ Link especial para regresar -->
     <a id="backLink" href="#">
       <button class="btn-back">Regresar</button>
     </a>
@@ -481,11 +471,11 @@
       {r:3, c:5}, {r:4, c:5}, {r:5, c:5},
     ];
 
-    /* Link especial de regresar */
-    const BACK_LINK = "Index.html";
+    /* ====== AQUÍ PONES TU LINK ESPECIAL DE REGRESAR ====== */
+    const BACK_LINK = "Index copy.html";
     document.getElementById("backLink").href = BACK_LINK;
 
-    /* Links por mesa */
+    /* ====== AQUÍ PONES LOS LINKS DIFERENTES POR MESA ====== */
     const LINKS = {
       C1:  "Mesa1.html",
       C2:  "Mesa2.html",
@@ -518,18 +508,11 @@
       return LINKS[id] || "#";
     }
 
-    /* ✅ Estas rectangulares deben verse cuadradas (SIN moverlas) */
-    const SQUARE_LOOK = new Set(["C2","C5","C7","C9","C11","C13"]);
-
     function createMesa(id, isRound, gridPos){
       const a = document.createElement("a");
       a.className = "mesa " + (isRound ? "round" : "square");
       a.href = mesaLink(id);
       a.textContent = id;
-
-      if (!isRound && SQUARE_LOOK.has(id)) {
-        a.classList.add("is-square");
-      }
 
       a.style.gridRow = gridPos.r;
       a.style.gridColumn = gridPos.c;
