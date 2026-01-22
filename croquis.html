@@ -37,9 +37,16 @@
       --gateW: 18px;
       --gateH: 80px;
 
-      --sqW: clamp(32px, 9.5vw, 54px);
-      --sqH: clamp(22px, 6.0vw, 38px);
-      --rdD: clamp(16px, 5.2vw, 34px);
+      /* ✅ Base de mesas rectangulares (las "C" normales) */
+      --rectW: clamp(32px, 9.5vw, 54px);
+      --rectH: clamp(22px, 6.0vw, 38px);
+
+      /* ✅ Tamaño de mesas CUADRADAS (C2,C5,C7,C9,C11,C13) */
+      --sqS:  clamp(28px, 7.6vw, 44px);
+
+      /* ✅ Mesas redondas (R) */
+      --rdD:  clamp(16px, 5.2vw, 34px);
+
       --gapSq: clamp(7px, 1.6vw, 12px);
 
       --tablesH: clamp(270px, 40vh, 360px);
@@ -276,12 +283,17 @@
       position: absolute;
       inset: 0;
       display: grid;
-      grid-template-columns: repeat(6, var(--sqW));
-      grid-template-rows: repeat(5, var(--sqH));
+
+      /* ✅ Mantén la “malla” como la traías */
+      grid-template-columns: repeat(6, var(--rectW));
+      grid-template-rows: repeat(5, var(--rectH));
+
       column-gap: var(--gapSq);
       row-gap: var(--gapSq);
+
       justify-content: center;
       align-content: center;
+
       padding: var(--tablesPad);
       box-sizing: border-box;
     }
@@ -313,21 +325,40 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* ✅ Separación por tipo */
-    .mesa.square{
-      width: var(--sqW);
-      height: var(--sqH);
-      border-radius: 4px;
+    /* ✅ RECTANGULARES (todas las C menos las especiales) */
+    .mesa.square.rectangular{
+      width: var(--rectW);
+      height: var(--rectH);
+      border-radius: 14px;
       margin: var(--mSquare);
     }
 
+    /* ✅ CUADRADAS (C2,C5,C7,C9,C11,C13) */
+    .mesa.square.cuadrada{
+      width: var(--sqS);
+      height: var(--sqS);
+      border-radius: 10px;
+
+      /* para que se note aún más “cuadrada” */
+      border-color: rgba(0,0,0,.28);
+      box-shadow: 0 8px 16px rgba(0,0,0,.10);
+
+      justify-self: center;
+      align-self: center;
+
+      margin: var(--mSquare);
+    }
+
+    /* ✅ REDONDAS (R) */
     .mesa.round{
       width: var(--rdD);
       height: var(--rdD);
       border-radius: 50%;
       justify-self: center;
       align-self: center;
-      margin: var(---mRound); /* ✅ más adentro que los cuadrados */
+
+      /* ✅ más adentro que las rectangulares */
+      margin: var(--mRound);
     }
 
     .mesa:hover{
@@ -347,7 +378,6 @@
       margin-top: 14px;
     }
 
-    /* ✅ SOLO CELULAR: círculos más “para dentro” que rectángulos */
     @media (max-width: 520px){
       .container{ margin: 16px auto; padding:5px; }
       h1{ font-size: 24px; }
@@ -371,15 +401,15 @@
 
         --tablesPad: 10px;
 
-        /* ✅ FIX (tenías 10x): separación “poquito” */
         --gapSq: clamp(5px, 1.2vw, 8px);
 
-        /* Tamaños como los traías */
-        --sqW: clamp(32px, 8.4vw, 44px);
-        --sqH: clamp(30px, 6.2vw, 34px);
-        --rdD: clamp(26px, 5.4vw, 30px);
+        /* ✅ tamaños mobile */
+        --rectW: clamp(32px, 8.4vw, 44px);
+        --rectH: clamp(30px, 6.2vw, 34px);
 
-        /* ✅ Diferencia clara entre tipos (círculos más adentro) */
+        --sqS:  clamp(28px, 7.0vw, 38px);
+        --rdD:  clamp(26px, 5.4vw, 30px);
+
         --mSquare: 1px;
         --mRound:  2px;
       }
@@ -436,6 +466,9 @@
     const NUM_CUADRADAS = 14;
     const NUM_REDONDAS  = 10;
 
+    /* ✅ Estas son las CUADRADAS: 2,5,7,9,11,13 */
+    const CUADRADAS = new Set(["C2","C5","C7","C9","C11","C13"]);
+
     const squarePos = [
       {r:1, c:1}, {r:1, c:2}, {r:1, c:3}, {r:1, c:4}, {r:1, c:5}, {r:1, c:6},
       {r:2, c:1}, {r:3, c:1}, {r:4, c:1}, {r:5, c:1},
@@ -488,6 +521,12 @@
       a.className = "mesa " + (isRound ? "round" : "square");
       a.href = mesaLink(id);
       a.textContent = id;
+
+      // ✅ diferencia CUADRADA vs RECTANGULAR solo en las "C"
+      if (!isRound) {
+        a.classList.add(CUADRADAS.has(id) ? "cuadrada" : "rectangular");
+      }
+
       a.style.gridRow = gridPos.r;
       a.style.gridColumn = gridPos.c;
       return a;
