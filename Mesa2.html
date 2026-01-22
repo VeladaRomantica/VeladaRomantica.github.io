@@ -29,35 +29,32 @@
     }
 
     :root{
-      --seat: 60px;
-      --gapOut: 14px;
+      --seat: 60px;     /* tamaño silla */
+      --gapOut: 16px;   /* separación fuera de la línea de la mesa */
     }
 
-    /* Área de mesa + asientos */
     .table-area{
       position: relative;
       width: min(760px, 92vw);
-      height: min(420px, 56vw);
-      max-height: 520px;
+      height: min(520px, 74vw);
+      max-height: 620px;
       margin: 18px auto 10px auto;
       border-radius: 16px;
       background: #fff;
       box-shadow: 0 10px 26px rgba(0,0,0,.08);
       border: 1px solid rgba(0,0,0,.08);
-      overflow: hidden; /* PC: se queda igual */
+      overflow: hidden;
     }
 
-    /* Mesa rectangular al centro */
-    .mesa-rect{
+    /* ✅ MESA CUADRADA */
+    .mesa-square{
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-
-      width: min(460px, 60vw);
-      height: min(150px, 18vw);
-
-      border: 4px solid rgba(0,0,0,.20);
+      width: min(300px, 54vw);
+      height: min(300px, 54vw);
+      border: 6px solid rgba(0,0,0,.20);
       border-radius: 18px;
       background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
       box-shadow: inset 0 0 0 2px rgba(255,255,255,.7);
@@ -148,27 +145,13 @@
       box-shadow: 0 8px 20px rgba(0,0,0,.10);
     }
 
-    /* ✅ MÓVIL: agrandar el “cuadro” y NO recortar asientos */
     @media (max-width: 520px){
       :root{
         --seat: 52px;
-        --gapOut: 12px;
+        --gapOut: 14px;
       }
-
-      .container{
-        padding: 16px;
-      }
-
       .table-area{
-        width: min(900px, 96vw);      /* más ancho */
-        height: min(420px, 60vw);     /* más alto */
-        max-height: 420px;
-        overflow: visible;            /* ✅ clave: ya NO recorta asientos */
-      }
-
-      .mesa-rect{
-        width: min(240px, 56vw);
-        height: min(95px, 16vw);
+        height: min(520px, 94vw);
       }
     }
   </style>
@@ -179,7 +162,7 @@
     <h1>Selecciona tus asientos</h1>
 
     <div class="table-area" aria-label="Mesa y asientos">
-      <div class="mesa-rect" id="mesaRect">MESA</div>
+      <div class="mesa-square" id="mesaSquare">MESA</div>
       <div id="seating-chart"></div>
     </div>
 
@@ -212,15 +195,12 @@
     const db = getFirestore(app);
 
     const seatingChart = document.getElementById("seating-chart");
-    const mesaRectEl = document.getElementById("mesaRect");
+    const mesaEl = document.getElementById("mesaSquare");
 
-    const pageId = "mesa2";
+    const pageId = "mesa2"; // cámbialo por la mesa que sea
     const seatsRef = doc(db, "asientos", pageId);
 
-    const SEATS_TOP = 4;
-    const SEATS_BOTTOM = 4;
-    const SEATS_LEFT = 1;
-    const SEATS_RIGHT = 1;
+    const TOTAL_SEATS = 4;
 
     function numCss(varName){
       const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
@@ -228,53 +208,61 @@
       return Number.isFinite(n) ? n : 0;
     }
 
-    function spread(start, end, count){
-      if (count <= 1) return [(start + end) / 2];
-      const step = (end - start) / (count - 1);
-      return Array.from({ length: count }, (_, i) => start + step * i);
-    }
-
-    function positionSeats(){
+    // ✅ 4 sillas: arriba, derecha, abajo, izquierda (siempre fuera del cuadrado)
+    function positionSeatsSquareSides(){
       const seatEls = seatingChart.querySelectorAll(".seat");
       if (!seatEls.length) return;
 
       const areaRect = seatingChart.getBoundingClientRect();
-      const tableRect = mesaRectEl.getBoundingClientRect();
+      const mesaRect = mesaEl.getBoundingClientRect();
 
       const seatSize = seatEls[0].getBoundingClientRect().width || 60;
-      const gapOut = numCss("--gapOut") || 14;
+      const gapOut = numCss("--gapOut") || 16;
 
-      const tableLeft = tableRect.left - areaRect.left;
-      const tableTop = tableRect.top - areaRect.top;
-      const tableRight = tableLeft + tableRect.width;
-      const tableBottom = tableTop + tableRect.height;
+      // Centro de la mesa (relativo al área)
+      const cx = (mesaRect.left - areaRect.left) + (mesaRect.width / 2);
+      const cy = (mesaRect.top - areaRect.top) + (mesaRect.height / 2);
 
-      const offset = (seatSize / 2) + gapOut;
+      // Distancias desde el centro hasta la línea del cuadrado
+      const halfW = mesaRect.width / 2;
+      const halfH = mesaRect.height / 2;
 
-      const topXs = spread(tableLeft + offset, tableRight - offset, SEATS_TOP);
-      const bottomXs = spread(tableLeft + offset, tableRight - offset, SEATS_BOTTOM);
-      const leftYs = spread(tableTop + offset, tableBottom - offset, SEATS_LEFT);
-      const rightYs = spread(tableTop + offset, tableBottom - offset, SEATS_RIGHT);
+      // ✅ offsets para colocar el centro del asiento fuera de la línea
+      const topY    = cy - (halfH + (seatSize/2) + gapOut);
+      const bottomY = cy + (halfH + (seatSize/2) + gapOut);
+      const leftX   = cx - (halfW + (seatSize/2) + gapOut);
+      const rightX  = cx + (halfW + (seatSize/2) + gapOut);
 
-      const positions = [];
-      topXs.forEach(x => positions.push({ x, y: tableTop - offset }));
-      rightYs.forEach(y => positions.push({ x: tableRight + offset, y }));
-      bottomXs.forEach(x => positions.push({ x, y: tableBottom + offset }));
-      leftYs.forEach(y => positions.push({ x: tableLeft - offset, y }));
+      // Orden: 1 arriba, 2 derecha, 3 abajo, 4 izquierda
+      const positions = [
+        { x: cx,     y: topY    },
+        { x: rightX, y: cy      },
+        { x: cx,     y: bottomY },
+        { x: leftX,  y: cy      },
+      ];
 
-      seatEls.forEach((el, idx) => {
-        const p = positions[idx];
-        if (!p) return;
-        el.style.left = `${p.x}px`;
-        el.style.top = `${p.y}px`;
-        el.style.transform = "translate(-50%, -50%)";
-      });
+      // Seguridad: si algo se sale, lo “clamp” dentro del contenedor
+      const minX = (seatSize/2) + 6;
+      const maxX = areaRect.width - (seatSize/2) - 6;
+      const minY = (seatSize/2) + 6;
+      const maxY = areaRect.height - (seatSize/2) - 6;
+
+      for (let i = 0; i < seatEls.length; i++){
+        const p = positions[i] || positions[0];
+
+        const x = Math.min(maxX, Math.max(minX, p.x));
+        const y = Math.min(maxY, Math.max(minY, p.y));
+
+        seatEls[i].style.left = `${x}px`;
+        seatEls[i].style.top  = `${y}px`;
+        seatEls[i].style.transform = "translate(-50%, -50%)";
+      }
     }
 
     function renderSeats(savedSeats){
       seatingChart.innerHTML = "";
 
-      for (let i = 1; i <= 10; i++){
+      for (let i = 1; i <= TOTAL_SEATS; i++){
         const seat = document.createElement("div");
         seat.classList.add("seat");
         seat.textContent = i;
@@ -315,9 +303,7 @@
         seatingChart.appendChild(seat);
       }
 
-      requestAnimationFrame(() => {
-        positionSeats();
-      });
+      requestAnimationFrame(positionSeatsSquareSides);
     }
 
     onSnapshot(seatsRef, (snapshot) => {
@@ -325,9 +311,7 @@
       renderSeats(savedSeats);
     });
 
-    window.addEventListener("resize", () => {
-      requestAnimationFrame(() => positionSeats());
-    });
+    window.addEventListener("resize", () => requestAnimationFrame(positionSeatsSquareSides));
   </script>
 </body>
 </html>
