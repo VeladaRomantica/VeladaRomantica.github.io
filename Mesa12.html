@@ -29,8 +29,8 @@
     }
 
     :root{
-      --seat: 60px;     /* ✅ como el inicio */
-      --gapOut: 14px;   /* separación afuera de la mesa (no invade la línea) */
+      --seat: 60px;
+      --gapOut: 14px;
     }
 
     /* Área de mesa + asientos */
@@ -44,7 +44,7 @@
       background: #fff;
       box-shadow: 0 10px 26px rgba(0,0,0,.08);
       border: 1px solid rgba(0,0,0,.08);
-      overflow: hidden;
+      overflow: hidden; /* PC: se queda igual */
     }
 
     /* Mesa rectangular al centro */
@@ -53,8 +53,10 @@
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: min(560px, 70vw);
-      height: min(200px, 24vw);
+
+      width: min(460px, 60vw);
+      height: min(150px, 18vw);
+
       border: 4px solid rgba(0,0,0,.20);
       border-radius: 18px;
       background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
@@ -68,14 +70,12 @@
       z-index: 2;
     }
 
-    /* Contenedor absoluto para asientos */
     #seating-chart{
       position: absolute;
       inset: 0;
       z-index: 3;
     }
 
-    /* Asientos */
     .seat{
       width: var(--seat);
       height: var(--seat);
@@ -99,7 +99,7 @@
 
     .available:hover{
       background-color: #87CEFA;
-      transform: translate(-50%, -50%) translateY(-1px); /* mantiene centrado */
+      transform: translate(-50%, -50%) translateY(-1px);
     }
 
     .tooltip{
@@ -148,11 +148,27 @@
       box-shadow: 0 8px 20px rgba(0,0,0,.10);
     }
 
-    /* ✅ móvil: un poquito más pequeños para que siempre quepan */
+    /* ✅ MÓVIL: agrandar el “cuadro” y NO recortar asientos */
     @media (max-width: 520px){
       :root{
         --seat: 52px;
         --gapOut: 12px;
+      }
+
+      .container{
+        padding: 16px;
+      }
+
+      .table-area{
+        width: min(900px, 96vw);      /* más ancho */
+        height: min(420px, 60vw);     /* más alto */
+        max-height: 420px;
+        overflow: visible;            /* ✅ clave: ya NO recorta asientos */
+      }
+
+      .mesa-rect{
+        width: min(240px, 56vw);
+        height: min(95px, 16vw);
       }
     }
   </style>
@@ -201,11 +217,10 @@
     const pageId = "mesa12";
     const seatsRef = doc(db, "asientos", pageId);
 
-    // 10 asientos: 4 arriba, 4 abajo, 1 izquierda, 1 derecha
     const SEATS_TOP = 4;
     const SEATS_BOTTOM = 4;
-    const SEATS_LEFT = 0;
-    const SEATS_RIGHT = 0;
+    const SEATS_LEFT = 1;
+    const SEATS_RIGHT = 1;
 
     function numCss(varName){
       const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
@@ -226,34 +241,25 @@
       const areaRect = seatingChart.getBoundingClientRect();
       const tableRect = mesaRectEl.getBoundingClientRect();
 
-      // ✅ tomar el tamaño REAL del asiento (evita NaN / clamp)
       const seatSize = seatEls[0].getBoundingClientRect().width || 60;
       const gapOut = numCss("--gapOut") || 14;
 
-      // Mesa relativa al área
       const tableLeft = tableRect.left - areaRect.left;
       const tableTop = tableRect.top - areaRect.top;
       const tableRight = tableLeft + tableRect.width;
       const tableBottom = tableTop + tableRect.height;
 
-      // Centro del asiento debe quedar fuera del borde con este offset:
       const offset = (seatSize / 2) + gapOut;
 
-      // rangos sobre los lados (para repartirlos)
       const topXs = spread(tableLeft + offset, tableRight - offset, SEATS_TOP);
       const bottomXs = spread(tableLeft + offset, tableRight - offset, SEATS_BOTTOM);
       const leftYs = spread(tableTop + offset, tableBottom - offset, SEATS_LEFT);
       const rightYs = spread(tableTop + offset, tableBottom - offset, SEATS_RIGHT);
 
       const positions = [];
-
-      // Arriba
       topXs.forEach(x => positions.push({ x, y: tableTop - offset }));
-      // Derecha
       rightYs.forEach(y => positions.push({ x: tableRight + offset, y }));
-      // Abajo
       bottomXs.forEach(x => positions.push({ x, y: tableBottom + offset }));
-      // Izquierda
       leftYs.forEach(y => positions.push({ x: tableLeft - offset, y }));
 
       seatEls.forEach((el, idx) => {
@@ -309,7 +315,6 @@
         seatingChart.appendChild(seat);
       }
 
-      // ✅ esperar a que el navegador calcule tamaños y luego posicionar
       requestAnimationFrame(() => {
         positionSeats();
       });
