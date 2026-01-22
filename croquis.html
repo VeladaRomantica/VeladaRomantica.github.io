@@ -24,7 +24,7 @@
       --grid: 34px;
       --border: #1f2937;
 
-      /* Layout (mobile-first) */
+      /* Layout */
       --margen: 10px;
 
       --sideW: clamp(165px, 38vw, 210px);
@@ -83,13 +83,6 @@
       margin: 0 0 14px 0;
       color: var(--muted);
       font-size: 13px;
-    }
-
-    /* ✅ WRAP para poder escalar SOLO en celular sin mover posiciones */
-    .salon-wrap{
-      width: 100%;
-      display: flex;
-      justify-content: center;
     }
 
     /* ====== CROQUIS ====== */
@@ -302,9 +295,8 @@
     /* ✅ FIX: la capa de redondas ya no tapa los clics de las rectangulares */
     .mesas-redondas{
       z-index: 3;
-      pointer-events: none; /* permite click a lo de abajo */
+      pointer-events: none;
     }
-    /* ✅ y solo las mesas redondas sí reciben click */
     .mesas-redondas .mesa.round{
       pointer-events: auto;
     }
@@ -361,47 +353,67 @@
       .container{ margin: 16px auto; padding: 14px; }
       h1{ font-size: 24px; }
       .hint{ font-size: 12px; }
-      :root{ --grid: 30px; }
-    }
 
-    /* =========================================================
-       ✅ AJUSTE FINO CELULAR: “hacer todo más pequeño” SIN reacomodar
-       (mantiene el croquis igual, pero entra completo y las mesas caben)
-       ========================================================= */
-    @media (max-width: 520px){
-      /* Escala general del croquis */
-      .salon{
-        transform: scale(.90);
-        transform-origin: top center;
-      }
-
-      /* Compensa el alto para que no se corte por el scale */
-      .salon-wrap{
-        height: calc(var(--salonH) * .90);
-      }
-
-      /* Mesas un poquito más pequeñas en móvil (solo tamaño, NO posiciones) */
+      /* ✅ AQUÍ se invierten los papeles SIN mover el croquis:
+         - Cocina/baños/oficinas MÁS CHICOS
+         - Mesas y músicos MÁS GRANDES
+         - El bloque de mesas se mueve a la izquierda (porque baja officeW)
+      */
       :root{
-        --sqW: 40px;
-        --sqH: 30px;
-        --rdD: 25px;
+        --grid: 28px;
+
+        /* Partes “grandes” más pequeñas */
+        --sideW: 140px;
+        --sideH: 220px;
+
+        --officeW: 210px;
+        --officeH: 82px;
+
+        /* Entrada un poco más delgada */
+        --stairsW: 24px;
+
+        /* Escenario (MÚSICOS) más alto */
+        --stageH: 130px;
+
+        /* Bloque de mesas más alto */
+        --tablesH: 330px;
+
+        /* Mesas un poco MÁS GRANDES (para que resalten) */
+        --sqW: 48px;
+        --sqH: 34px;
+        --rdD: 28px;
         --gapSq: 7px;
-        --tablesH: 240px;
+
+        /* Mantén el mismo “croquis” pero con mejor encaje */
+        --salonW: 96vw;
+        --salonH: 82vh;
       }
+
+      /* Ajuste de tipografía interna para que no se vea enorme */
+      .side .row{ font-size: 14px; }
+      .office{ font-size: 14px; }
+      .zona-musicos{ font-size: 16px; }
     }
 
-    /* iPhones pequeños: aún más compacto */
+    /* iPhone muy pequeño: un toque más compacto */
     @media (max-width: 390px){
-      .salon{ transform: scale(.85); }
-      .salon-wrap{ height: calc(var(--salonH) * .85); }
-
       :root{
-        --sqW: 38px;
-        --sqH: 28px;
-        --rdD: 24px;
-        --gapSq: 6px;
-        --tablesH: 230px;
+        --sideW: 132px;
+        --sideH: 210px;
+
+        --officeW: 198px;
+        --officeH: 78px;
+
+        --stageH: 122px;
+        --tablesH: 320px;
+
+        --sqW: 46px;
+        --sqH: 33px;
+        --rdD: 27px;
+
+        --salonH: 80vh;
       }
+      .side .row{ font-size: 13px; }
     }
   </style>
 </head>
@@ -411,37 +423,34 @@
     <h1>Selecciona tus mesas</h1>
     <p class="hint">Toca una mesa para ir a su página.</p>
 
-    <!-- ✅ wrap para poder escalar en celular sin mover posiciones -->
-    <div class="salon-wrap">
-      <div class="salon">
-        <div class="label">SALÓN</div>
+    <div class="salon">
+      <div class="label">SALÓN</div>
 
-        <div class="side">
-          <div class="row">COCINA</div>
-          <div class="row">BARRA</div>
-          <div class="row">BAÑOS HOMBRES</div>
-          <div class="row">BAÑOS MUJERES</div>
-        </div>
+      <div class="side">
+        <div class="row">COCINA</div>
+        <div class="row">BARRA</div>
+        <div class="row">BAÑOS HOMBRES</div>
+        <div class="row">BAÑOS MUJERES</div>
+      </div>
 
-        <div class="gate" aria-label="Portón">
-          <span>PORTÓN</span>
-        </div>
+      <div class="gate" aria-label="Portón">
+        <span>PORTÓN</span>
+      </div>
 
-        <div class="office">OFICINAS</div>
+      <div class="office">OFICINAS</div>
 
-        <div class="stairs" aria-label="Escalera principal">
-          <b>Entrada</b>
-        </div>
+      <div class="stairs" aria-label="Escalera principal">
+        <b>Entrada</b>
+      </div>
 
-        <div class="zona-musicos">MÚSICOS</div>
+      <div class="zona-musicos">MÚSICOS</div>
 
-        <div class="zona-cuadradas" id="zonaCuadradas">
-          <div class="zona-title">MESAS</div>
+      <div class="zona-cuadradas" id="zonaCuadradas">
+        <div class="zona-title">MESAS</div>
 
-          <div class="zona-redondas">
-            <div class="mesas-redondas" id="mesasRedondas"></div>
-            <div class="mesas-cuadradas" id="mesasCuadradas"></div>
-          </div>
+        <div class="zona-redondas">
+          <div class="mesas-redondas" id="mesasRedondas"></div>
+          <div class="mesas-cuadradas" id="mesasCuadradas"></div>
         </div>
       </div>
     </div>
@@ -513,10 +522,8 @@
       a.className = "mesa " + (isRound ? "round" : "square");
       a.href = mesaLink(id);
       a.textContent = id;
-
       a.style.gridRow = gridPos.r;
       a.style.gridColumn = gridPos.c;
-
       return a;
     }
 
