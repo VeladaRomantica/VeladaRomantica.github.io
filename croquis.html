@@ -245,7 +245,7 @@
       box-sizing: border-box;
       z-index: 4;
 
-      overflow: hidden; /* nada se sale */
+      overflow: hidden;
       border-radius: 14px;
       background: rgba(255,255,255,.65);
       border: 1px solid rgba(0,0,0,.08);
@@ -292,7 +292,6 @@
 
     .mesas-cuadradas{ z-index: 2; }
 
-    /* ✅ FIX: la capa de redondas ya no tapa los clics de las rectangulares */
     .mesas-redondas{
       z-index: 3;
       pointer-events: none;
@@ -349,71 +348,74 @@
       margin-top: 14px;
     }
 
+    /* =========================================================
+       ✅ MÓVIL: hacer MÁS ANCHA la zona de mesas
+       y hacer MÁS CHICOS cocina/baños y oficinas (sin mover el croquis)
+       ========================================================= */
     @media (max-width: 520px){
       .container{ margin: 16px auto; padding: 14px; }
       h1{ font-size: 24px; }
       .hint{ font-size: 12px; }
+      :root{ --grid: 28px; }
 
-      /* ✅ AQUÍ se invierten los papeles SIN mover el croquis:
-         - Cocina/baños/oficinas MÁS CHICOS
-         - Mesas y músicos MÁS GRANDES
-         - El bloque de mesas se mueve a la izquierda (porque baja officeW)
-      */
+      /* 1) Reducir bloque izquierdo (cocina/baños) */
       :root{
-        --grid: 28px;
+        --sideW: 120px;   /* más chico */
+        --sideH: 200px;   /* más chico */
 
-        /* Partes “grandes” más pequeñas */
-        --sideW: 140px;
-        --sideH: 220px;
+        /* 2) Reducir oficinas para liberar ancho */
+        --officeW: 160px; /* más chico */
+        --officeH: 72px;  /* más chico */
 
-        --officeW: 210px;
-        --officeH: 82px;
+        /* 3) Entrada un poco más delgada */
+        --stairsW: 22px;
 
-        /* Entrada un poco más delgada */
-        --stairsW: 24px;
+        /* 4) Mantener músicos visible pero sin robar ancho */
+        --stageH: 120px;
 
-        /* Escenario (MÚSICOS) más alto */
-        --stageH: 130px;
+        /* 5) Zona de mesas más alta para que entren cómodas */
+        --tablesH: 360px;
 
-        /* Bloque de mesas más alto */
-        --tablesH: 330px;
-
-        /* Mesas un poco MÁS GRANDES (para que resalten) */
-        --sqW: 48px;
-        --sqH: 34px;
+        /* 6) Mesas un poco más grandes pero que sí quepan */
+        --sqW: 46px;
+        --sqH: 33px;
         --rdD: 28px;
         --gapSq: 7px;
 
-        /* Mantén el mismo “croquis” pero con mejor encaje */
+        /* 7) Croquis ocupa casi toda la pantalla */
         --salonW: 96vw;
         --salonH: 82vh;
       }
 
-      /* Ajuste de tipografía interna para que no se vea enorme */
-      .side .row{ font-size: 14px; }
-      .office{ font-size: 14px; }
-      .zona-musicos{ font-size: 16px; }
+      .side .row{ font-size: 12px; padding: 0 6px; }
+      .office{ font-size: 13px; }
+      .zona-musicos{ font-size: 15px; }
+
+      /* Extra: reduce un poco el padding de la zona de mesas para ganar ancho real */
+      .mesas-cuadradas,
+      .mesas-redondas{
+        padding: 12px;
+      }
     }
 
-    /* iPhone muy pequeño: un toque más compacto */
     @media (max-width: 390px){
       :root{
-        --sideW: 132px;
-        --sideH: 210px;
+        --sideW: 112px;
+        --sideH: 190px;
 
-        --officeW: 198px;
-        --officeH: 78px;
+        --officeW: 150px;
+        --officeH: 68px;
 
-        --stageH: 122px;
-        --tablesH: 320px;
+        --stageH: 112px;
+        --tablesH: 350px;
 
-        --sqW: 46px;
-        --sqH: 33px;
+        --sqW: 44px;
+        --sqH: 32px;
         --rdD: 27px;
 
         --salonH: 80vh;
       }
-      .side .row{ font-size: 13px; }
+      .side .row{ font-size: 11px; }
     }
   </style>
 </head>
@@ -455,7 +457,6 @@
       </div>
     </div>
 
-    <!-- ✅ Link especial para regresar -->
     <a id="backLink" href="#">
       <button class="btn-back">Regresar</button>
     </a>
@@ -480,11 +481,11 @@
       {r:3, c:5}, {r:4, c:5}, {r:5, c:5},
     ];
 
-    /* ====== AQUÍ PONES TU LINK ESPECIAL DE REGRESAR ====== */
+    /* ====== LINK ESPECIAL REGRESAR ====== */
     const BACK_LINK = "Index copy.html";
     document.getElementById("backLink").href = BACK_LINK;
 
-    /* ====== AQUÍ PONES LOS LINKS DIFERENTES POR MESA ====== */
+    /* ====== LINKS DIFERENTES POR MESA ====== */
     const LINKS = {
       C1:  "Mesa1.html",
       C2:  "Mesa2.html",
@@ -500,7 +501,6 @@
       C12: "Mesa12.html",
       C13: "mesa13.html",
       C14: "mesa14.html",
-
       R1:  "mesa15.html",
       R2:  "mesa16.html",
       R3:  "mesa17.html",
