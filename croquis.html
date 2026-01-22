@@ -48,6 +48,10 @@
       --salonH: min(86vh, 980px);
 
       --tablesPad: 16px;
+
+      /* ✅ separación fina entre tipos */
+      --mSquare: 2px;  /* cuadrados: menos margen */
+      --mRound:  6px;  /* círculos: más margen => “más para dentro” */
     }
 
     body{
@@ -309,10 +313,12 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    /* ✅ Separación por tipo */
     .mesa.square{
       width: var(--sqW);
       height: var(--sqH);
-      border-radius: 14px;
+      border-radius: 4px;
+      margin: var(--mSquare);
     }
 
     .mesa.round{
@@ -321,6 +327,7 @@
       border-radius: 50%;
       justify-self: center;
       align-self: center;
+      margin: var(---mRound); /* ✅ más adentro que los cuadrados */
     }
 
     .mesa:hover{
@@ -340,10 +347,7 @@
       margin-top: 14px;
     }
 
-    /* ✅ SOLO CELULAR:
-       - NO tocamos tamaños de cuadros grandes.
-       - SOLO hacemos mesas más pequeñas y con un poco más de separación.
-    */
+    /* ✅ SOLO CELULAR: círculos más “para dentro” que rectángulos */
     @media (max-width: 520px){
       .container{ margin: 16px auto; padding:5px; }
       h1{ font-size: 24px; }
@@ -353,11 +357,10 @@
         --grid: 30px;
         --margen: 8px;
 
-        /* Tus cambios se quedan igual */
         --sideW: clamp(92px, 24vw, 110px);
         --sideH: clamp(190px, 26vh, 215px);
 
-        --officeW: clamp(120px, 34vw, 50px);
+        --officeW: clamp(100px, 34vw, 50px);
         --officeH: clamp(62px, 9vh, 74px);
 
         --stairsW: clamp(14px, 4vw, 20px);
@@ -366,13 +369,19 @@
         --stageH: clamp(46px, 10vh, 72px);
         --tablesH: clamp(220px, 32vh, 260px);
 
-        /* ✅ AJUSTE REAL: mesas más chicas + un poquito más de separación */
-        --tablesPad: 6px;                  /* padding moderado (no enorme) */
-        --gapSq: clamp(4px, 1.0vw, 7px);   /* separarlas un poco (sin exagerar) */
+        --tablesPad: 10px;
 
-        --sqW: clamp(28px, 8.4vw, 44px);   /* más pequeñas */
-        --sqH: clamp(20px, 6.2vw, 34px);   /* más pequeñas */
-        --rdD: clamp(16px, 5.4vw, 30px);   /* redondas más pequeñas */
+        /* ✅ FIX (tenías 10x): separación “poquito” */
+        --gapSq: clamp(5px, 1.2vw, 8px);
+
+        /* Tamaños como los traías */
+        --sqW: clamp(32px, 8.4vw, 44px);
+        --sqH: clamp(30px, 6.2vw, 34px);
+        --rdD: clamp(26px, 5.4vw, 30px);
+
+        /* ✅ Diferencia clara entre tipos (círculos más adentro) */
+        --mSquare: 1px;
+        --mRound:  2px;
       }
     }
   </style>
